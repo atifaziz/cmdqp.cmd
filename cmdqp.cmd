@@ -102,20 +102,7 @@ if exist "%this_name%.halt.txt" type "%this_name%.halt.txt" & exit /b 2
 for /f %%c in ('%dirq% /b *.cmd 2^>nul') do (
     if exist "%this_name%.halt.txt" type "%this_name%.halt.txt" & exit /b 2
     if exist "%this_name%.pause.txt" type "%this_name%.pause.txt" & timeout %sleep_seconds% & goto :runloop
-    echo Running %%c
-    echo %%c > "%%c.log"
-    echo ------------------------- >> "%%c.log"
-    type "%%c" >> "%%c.log"
-    echo ------------------------- >> "%%c.log"
-    call "%%c" >> "%%c.log"
-    if errorlevel 1 (
-        set /a errorcount+=1
-        type "%%c.log" > "%lasterror%"
-        if not defined continue_on_error goto :error
-    ) else (
-        ren "%%c" "%%c.bak" 2>nul
-        del "%%c.errors.log" 2>nul
-    )
+    call :do "%%c" || goto :error
     set /a count+=1
 )
 if exist %lasterror% del %lasterror%
@@ -129,6 +116,38 @@ goto :runloop
 :error
 type "%lasterror%"
 echo INTERNAL ERROR & exit /b 1
+
+:do
+setlocal
+echo Running %~1
+set retry=0
+if not defined max_lock_retries set max_lock_retries=10
+if not defined lock_retry_seconds set lock_retry_seconds=2
+:do_retry
+set /a retry+=1
+:: Following line will append nothing to the file but if it is open by
+:: another process then it will fail and assume to be locked.
+:: Credit: https://stackoverflow.com/a/10520609/6682
+(>>%1 echo off) || goto :do_locked
+echo %~1 > "%~1.log"
+echo ------------------------- >> "%~1.log"
+type %1 >> "%~1.log"
+echo ------------------------- >> "%~1.log"
+call %1 >> "%~1.log"
+if %errorlevel%==0 (
+    ren %1 "%~1.bak" 2>nul
+    del "%~1.errors.log" 2>nul
+) else (
+    set /a errorcount+=1
+    type "%~1.log" > "%lasterror%"
+    if not defined continue_on_error exit /b 1
+)
+exit /b 0
+:do_locked
+echo ...might be locked so will retry in %lock_retry_seconds% seconds! [attempt #%retry%/%max_lock_retries%]
+if %retry%==10 exit /b 1
+timeout %lock_retry_seconds%
+goto :do_retry
 
 :$help
 goto :EOF
