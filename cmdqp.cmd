@@ -167,6 +167,16 @@ set pause_file_path=%qdir%\%this_name%.pause.txt
 if exist "%pause_file_path%" del "%pause_file_path%"
 exit /b 0
 
+:$halt
+goto :EOF
+:halt
+setlocal
+call :init || exit /b 1
+if not defined message set "message=Halted by %username% on %date%, at %time%."
+set halt_file_path=%qdir%\%this_name%.halt.txt
+echo %message%>> "%qdir%\%halt_file_path%.pause.txt"
+exit /b 0
+
 :$help
 goto :EOF
 :help
@@ -181,4 +191,5 @@ echo     %~n0 list       list the command files of the queue
 echo     %~n0 logs       list the logs
 echo     %~n0 pause      pause before next task (until unpaused)
 echo     %~n0 unpause    unpause
+echo     %~n0 halt       finish current task (if any) then stop
 exit /b 0
