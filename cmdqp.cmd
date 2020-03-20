@@ -150,6 +150,23 @@ if %retry%==10 exit /b 1
 timeout %lock_retry_seconds%
 goto :do_retry
 
+:$pause
+goto :EOF
+:pause
+setlocal
+call :init || exit /b 1
+if not defined message set "message=Paused by %username% on %date%, at %time%."
+echo %message%>> "%qdir%\%this_name%.pause.txt"
+exit /b 0
+
+:$unpause
+goto :EOF
+:unpause
+setlocal
+set pause_file_path=%qdir%\%this_name%.pause.txt
+if exist "%pause_file_path%" del "%pause_file_path%"
+exit /b 0
+
 :$help
 goto :EOF
 :help
@@ -162,4 +179,6 @@ echo     %~n0 run        run queued tasks once
 echo     %~n0 daemon     run queued tasks forever
 echo     %~n0 list       list the command files of the queue
 echo     %~n0 logs       list the logs
+echo     %~n0 pause      pause before next task (until unpaused)
+echo     %~n0 unpause    unpause
 exit /b 0
