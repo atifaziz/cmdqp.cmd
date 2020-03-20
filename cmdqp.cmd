@@ -125,6 +125,7 @@ if not defined max_lock_retries set max_lock_retries=10
 if not defined lock_retry_seconds set lock_retry_seconds=2
 :do_retry
 set /a retry+=1
+if exist "%~1.lock" goto :do_locked
 :: Following line will append nothing to the file but if it is open by
 :: another process then it will fail and assume to be locked.
 :: Credit: https://stackoverflow.com/a/10520609/6682
