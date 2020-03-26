@@ -4,7 +4,6 @@ chcp 1252 > nul
 pushd "%~dp0"
 set this_name=%~n0
 set dirq=dir /od /a-d
-if exist qcmd.cmd (set qcmd=%~dp0\qcmd) else (echo WARNING! Queue command missing. >&2)
 if "%1"=="" echo Missing command specification. >&2 & exit /b 1
 set cmd=%1
 shift /1
