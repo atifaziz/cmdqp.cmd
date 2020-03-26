@@ -144,7 +144,7 @@ if %errorlevel%==0 (
 exit /b 0
 :do_locked
 echo ...might be locked so will retry in %lock_retry_seconds% seconds! [attempt #%retry%/%max_lock_retries%]
-if %retry%==10 exit /b 1
+if %retry%==%max_lock_retries% exit /b 1
 timeout %lock_retry_seconds%
 goto :do_retry
 
