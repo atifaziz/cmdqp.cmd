@@ -8,7 +8,7 @@ if "%~1"=="" echo Missing command specification. >&2 & exit /b 1
 set cmd=%~1
 shift /1
 call :$%cmd% 2>nul
-if errorlevel 1 call :badcmd %0 & exit /b %errorlevel%
+if not %errorlevel%==0 call :badcmd %0 & exit /b %errorlevel%
 
 :do_parse_options
 if "%~1"=="" goto end_parse_options
@@ -88,7 +88,7 @@ setlocal
 if not defined sleep_seconds set sleep_seconds=15
 shift && shift
 call :init
-if errorlevel 1 exit /b %errorlevel%
+if not %errorlevel%==0 exit /b %errorlevel%
 pushd "%qdir%"
 echo Queue is %qdir%
 :runloop
