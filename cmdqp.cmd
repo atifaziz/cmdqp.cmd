@@ -32,7 +32,6 @@ goto do_parse_options
 :end_parse_options
 
 if not defined qdir set qdir=%~dpn0.q
-if not defined qerrordir set qerrordir=-
 
 call :%cmd% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 exit /b %errorlevel%
@@ -49,10 +48,8 @@ if defined msgcmd call %msgcmd% cmdqp %1
 exit /b %errlvl%
 
 :init
-setlocal
 if not exist "%qdir%" md "%qdir%"
-if "%qerrordir%" neq "-" if not exist %qerrordir% md %qerrordir%
-goto :EOF
+exit /b %errorlevel%
 
 :$dir
 :$ls
