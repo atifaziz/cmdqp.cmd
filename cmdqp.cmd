@@ -112,7 +112,7 @@ if %count%==0 (timeout %sleep_seconds%) else (if %errorcount% gtr 0 timeout %sle
 goto :runloop
 
 :error
-type "%lasterror%"
+if exist "%lasterror%" type "%lasterror%"
 echo INTERNAL ERROR & exit /b 1
 
 :do
