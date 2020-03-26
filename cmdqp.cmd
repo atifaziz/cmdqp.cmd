@@ -4,28 +4,28 @@ chcp 1252 > nul
 pushd "%~dp0"
 set this_name=%~n0
 set dirq=dir /od /a-d
-if "%1"=="" echo Missing command specification. >&2 & exit /b 1
-set cmd=%1
+if "%~1"=="" echo Missing command specification. >&2 & exit /b 1
+set cmd=%~1
 shift /1
 call :$%cmd% 2>nul
 if errorlevel 1 call :badcmd %0 & exit /b %errorlevel%
 
 :do_parse_options
-if "%1"=="" goto end_parse_options
-set arg=%1
+if "%~1"=="" goto end_parse_options
+set arg=%~1
 if not "%arg:~0,2%"=="--" goto end_parse_options
 if "%arg:~2%"=="" goto end_parse_options
 set arg=%arg:~2%
 set arg=%arg:-=_%
 set isbool=0
-set value=%2
+set value=%~2
 if "%value%"=="" set isbool=1
 if %isbool%==0 if "%value:~0,2%"=="--" set isbool=1
 if %isbool%==1 (
   set %arg%=1
   shift /1
 ) else (
-  set %arg%=%value%
+  set "%arg%=%value%"
   shift /1
   shift /1
 )
