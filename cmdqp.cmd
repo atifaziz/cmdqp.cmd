@@ -1,7 +1,6 @@
 @echo off
 setlocal
 chcp 1252 > nul
-pushd "%~dp0"
 set this_name=%~n0
 set dirq=dir /od /a-d
 if "%~1"=="" echo Missing command specification. >&2 & exit /b 1
@@ -36,7 +35,7 @@ if not defined qdir set qdir=%~dpn0.q
 if not defined qerrordir set qerrordir=-
 
 call :%cmd% %0 %1 %2 %3 %4 %5 %6 %7 %8 %9
-goto :EOF
+exit /b %errorlevel%
 
 :badcmd
 setlocal
@@ -90,7 +89,11 @@ shift && shift
 call :init
 if not %errorlevel%==0 exit /b %errorlevel%
 pushd "%qdir%"
-echo Queue is %qdir%
+call :_run
+popd & exit /b %errorlevel%
+
+:_run
+echo Queue is %cd%
 :runloop
 set count=0
 set errorcount=0
