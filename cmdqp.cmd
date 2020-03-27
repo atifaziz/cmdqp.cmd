@@ -1,5 +1,5 @@
 @echo off
-setlocal
+setlocal EnableDelayedExpansion
 chcp 1252 > nul
 set this_name=%~n0
 set dirq=dir /od /a-d
@@ -73,6 +73,7 @@ exit /b 0
 goto :EOF
 :daemon
 setlocal
+if defined max_count echo Maximum count option is not supported for this command.>&2 & exit /b 1
 shift
 start "Command Queue Daemon" cmd /t:1f /v /e /k %~n0 run --mode forever
 exit /b 0
@@ -81,6 +82,7 @@ exit /b 0
 goto :EOF
 :run
 setlocal
+if "%mode%"=="forever" if defined max_count echo Maximum count option is unsupported in this mode.>&2 & exit /b 1
 if not defined sleep_seconds set sleep_seconds=15
 shift && shift
 call :init
@@ -98,11 +100,13 @@ set start_time=%time%
 set lasterror=lasterror.log
 if exist "%this_name%.halt.txt" type "%this_name%.halt.txt" & exit /b 2
 for /f %%c in ('%dirq% /b *.cmd 2^>nul') do (
+    if defined max_count if !count! geq +%max_count% goto :break
     if exist "%this_name%.halt.txt" type "%this_name%.halt.txt" & exit /b 2
     if exist "%this_name%.pause.txt" type "%this_name%.pause.txt" & timeout %sleep_seconds% & goto :runloop
     call :do "%%c" || goto :error
     set /a count+=1
 )
+:break
 if exist %lasterror% del %lasterror%
 echo %count% command(s) executed
 if %errorcount% gtr 0 echo %errorcount% command(s) failed
