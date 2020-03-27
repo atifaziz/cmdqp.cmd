@@ -122,6 +122,7 @@ echo INTERNAL ERROR & exit /b 1
 :do
 setlocal
 echo Running %~1
+if exist "%~1.bak" echo Duplicate command (already executed)!>&2 && exit /b 1
 set retry=0
 if not defined max_lock_retries set max_lock_retries=10
 if not defined lock_retry_seconds set lock_retry_seconds=2
