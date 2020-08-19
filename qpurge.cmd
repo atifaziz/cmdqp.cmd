@@ -8,7 +8,7 @@ set qdir=%~f1
 
 pushd "%~dp0"
 set guid=
-for /f "usebackq" %%i in (`powershell -Command "[Guid]::NewGuid().ToString('n')"`) do set guid=%%i
+for /f "usebackq" %%i in (`powershell -NoProfile -Command "[Guid]::NewGuid().ToString('n')"`) do set guid=%%i
 if not defined guid echo Error generating GUID>&2 & exit /b 1
 set jobcmd_name=%~n0-%guid%
 call :gencmd %qdir% > %qdir%\%jobcmd_name%.cmd ^
